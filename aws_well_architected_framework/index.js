@@ -15,16 +15,20 @@ const filePath = "./" + fileName;
 
 // Create a new Excel workbook and sheet
 const workbook = new Excel.Workbook();
-const sheet = workbook.addWorksheet("AWS Well-Architected Framework");
 
-// Define the headers for the Excel sheet
-sheet.columns = [
-  { header: "Lens", key: "lens" },
-  { header: "Pillar", key: "pillar" },
-  { header: "Question", key: "question" },
-  { header: "Choice", key: "choice" },
-  {header: "Choice Description", key: "choiceDescription"}
-];
+const getNewSheet = (name) => {
+  const sheet = workbook.addWorksheet(name);
+  // Define the headers for the Excel sheet
+  sheet.columns = [
+    { header: "Lens", key: "lens" },
+    { header: "Pillar", key: "pillar" },
+    { header: "Question", key: "question" },
+    { header: "Choice", key: "choice" },
+    {header: "Choice Description", key: "choiceDescription"}
+  ];
+  return sheet;
+}
+
 
 async function* scanAWSWorkloadAnswers(config) {
   let paginationToken;
@@ -42,17 +46,17 @@ async function* scanAWSWorkloadAnswers(config) {
   } while (paginationToken);
 }
 
-let generate = async () => {
+const generate = async (lens, sheet) => {
   console.log("Start");
   for await (const answer of scanAWSWorkloadAnswers({
     WorkloadId: workloadId,
-    LensAlias: "wellarchitected",
+    LensAlias: lens,
   })) {
     const { PillarId, QuestionTitle, Choices } = answer;
     console.log(PillarId, QuestionTitle, Choices);
     Choices.forEach(choice => {
         sheet.addRow({
-            lens: "wellarchitected",
+            lens,
             pillar: PillarId,
             question: QuestionTitle,
             choice: choice.Title,
@@ -66,4 +70,8 @@ let generate = async () => {
   console.log("End");
 };
 
-generate();
+  const wellArchitectedSheet = getNewSheet("AWS Well-Architected Framework")
+  generate('wellarchitected', wellArchitectedSheet);
+  
+  const serverlessSheet = getNewSheet("AWS Serverless")
+  generate('serverless', serverlessSheet);
