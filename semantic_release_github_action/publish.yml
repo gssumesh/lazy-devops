@@ -1,0 +1,26 @@
+name: Publish
+on:
+  release:
+    types: [published]
+
+env:
+  SOME_ENV_VARIABLE: ${{ secrets.SOME_ENV_VARIABLE }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-18.04
+    name: Publish
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set output
+      id: stepid
+      run: echo "count=5" >> $GITHUB_OUTPUT
+
+    - name: Get the version
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT 
+
+    - name: Do something with the tagged artifact
+      run: echo ${{steps.get_version.outputs.VERSION}}

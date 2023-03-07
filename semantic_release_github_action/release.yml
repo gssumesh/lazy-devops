@@ -1,0 +1,26 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install Release Dependencies
+        run: |
+          npm install @semantic-release/commit-analyzer
+          npm install @semantic-release/release-notes-generator
+          npm install @semantic-release/github
+          npm install @semantic-release/exec
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.X_GITHUB_TOKEN }}
+        run: npx semantic-release
