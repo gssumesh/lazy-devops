@@ -22,6 +22,8 @@ sheet.columns = [
   { header: "Lens", key: "lens" },
   { header: "Pillar", key: "pillar" },
   { header: "Question", key: "question" },
+  { header: "Choice", key: "choice" },
+  {header: "Choice Description", key: "choiceDescription"}
 ];
 
 async function* scanAWSWorkloadAnswers(config) {
@@ -46,13 +48,17 @@ let generate = async () => {
     WorkloadId: workloadId,
     LensAlias: "wellarchitected",
   })) {
-    const { PillarId, QuestionTitle } = answer;
-    console.log(PillarId, QuestionTitle);
-    sheet.addRow({
-      lens: "wellarchitected",
-      pillar: PillarId,
-      question: QuestionTitle,
-    });
+    const { PillarId, QuestionTitle, Choices } = answer;
+    console.log(PillarId, QuestionTitle, Choices);
+    Choices.forEach(choice => {
+        sheet.addRow({
+            lens: "wellarchitected",
+            pillar: PillarId,
+            question: QuestionTitle,
+            choice: choice.Title,
+            choiceDescription: choice.Description
+          });
+    })
   }
   // Save the Excel file
   await workbook.xlsx.writeFile(filePath);
